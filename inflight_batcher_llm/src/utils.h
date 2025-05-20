@@ -127,6 +127,7 @@ struct OutputFieldsNames
     static constexpr char const* kvCacheAllocNewBlocks = "kv_cache_alloc_new_blocks";
     static constexpr char const* kvCacheReusedBlocks = "kv_cache_reused_blocks";
     static constexpr char const* kvCacheAllocTotalBlocks = "kv_cache_alloc_total_blocks";
+    static constexpr char const* tokenCount = "token_count";
 };
 
 inline static std::string const kStopInputTensorName = "stop";
