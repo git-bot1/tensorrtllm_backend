@@ -1121,6 +1121,16 @@ std::tuple<TRITONBACKEND_Response*, bool, TRITONSERVER_Error*, int64_t> ModelIns
                 utils::flatten<int32_t>(sequenceIndexVec, sequenceIndexBuffer, sequenceIndexShape);
             }
 
+            if (requestData.outputNames.count(OutputFieldsNames::tokenCount) > 0)
+            {
+                std::vector<int64_t> tokenCountShape{1, 1};
+                auto tokenCountType = TRITONSERVER_TYPE_INT32;
+                auto tokenCountBuffer = utils::getResponseBuffer<int32_t>(
+                    tritonResponse, tokenCountShape, tokenCountType, OutputFieldsNames::tokenCount);
+                std::vector<int32_t> tokenCountVec = {tokenCount};
+                utils::flatten<int32_t>(tokenCountVec, tokenCountBuffer, tokenCountShape);
+            }
+
             if (requestData.requestType == executor::RequestType::REQUEST_TYPE_CONTEXT_ONLY)
             {
                 if (response.getResult().contextPhaseParams.has_value())
