@@ -1100,6 +1100,18 @@ std::tuple<TRITONBACKEND_Response*, bool, TRITONSERVER_Error*, int64_t> ModelIns
                 }
             }
 
+            if (requestData.outputNames.count(OutputFieldsNames::tokenCount) > 0)
+            {
+                if (result.tokenCount.has_value())
+                {
+                    std::vector<int64_t> tokenCountShape{1, static_cast<int64_t>(result.tokenCount.value().size())};
+                    auto tokenCountType = TRITONSERVER_TYPE_INT32;
+                    auto tokenCountBuffer = utils::getResponseBuffer<int32_t>(
+                        tritonResponse, tokenCountShape, tokenCountType, OutputFieldsNames::tokenCount);
+                    utils::flatten<int32_t>(result.tokenCount.value(), tokenCountBuffer, tokenCountShape);
+                }
+            }
+
             if (requestData.outputNames.count(OutputFieldsNames::batchIndex) > 0 && requestData.batchSize > 1)
             {
                 std::vector<int64_t> batchIndexShape{1, 1};
@@ -1119,16 +1131,6 @@ std::tuple<TRITONBACKEND_Response*, bool, TRITONSERVER_Error*, int64_t> ModelIns
                     tritonResponse, sequenceIndexShape, sequenceIndexType, OutputFieldsNames::sequenceIndex);
                 std::vector<int32_t> sequenceIndexVec = {sequenceIndex};
                 utils::flatten<int32_t>(sequenceIndexVec, sequenceIndexBuffer, sequenceIndexShape);
-            }
-
-            if (requestData.outputNames.count(OutputFieldsNames::tokenCount) > 0)
-            {
-                std::vector<int64_t> tokenCountShape{1, 1};
-                auto tokenCountType = TRITONSERVER_TYPE_INT32;
-                auto tokenCountBuffer = utils::getResponseBuffer<int32_t>(
-                    tritonResponse, tokenCountShape, tokenCountType, OutputFieldsNames::tokenCount);
-                std::vector<int32_t> tokenCountVec = {tokenCount};
-                utils::flatten<int32_t>(tokenCountVec, tokenCountBuffer, tokenCountShape);
             }
 
             if (requestData.requestType == executor::RequestType::REQUEST_TYPE_CONTEXT_ONLY)
